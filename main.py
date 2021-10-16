@@ -1,6 +1,4 @@
 import json
-import shutup
-shutup.please()
 import time
 import numpy as np
 import streamlit as st
