@@ -16,13 +16,13 @@ from bert_functions import index_corpus_bert, search_bert
 
 def prestart(filename):
     '''загрузить модели, посчитать и создать все нужные файлы'''
-    ft_model_path = 'araneum_none_fasttextcbow_300_5_2018.model'
+    ft_model_path = '../hw4/araneum_none_fasttextcbow_300_5_2018/araneum_none_fasttextcbow_300_5_2018.model'
     fasttext_model = KeyedVectors.load(ft_model_path)
-    #fasttext_model = 0
+    # fasttext_model = 0
     bert_tokenizer = AutoTokenizer.from_pretrained("cointegrated/rubert-tiny")
     bert_model = AutoModel.from_pretrained("cointegrated/rubert-tiny")
-    #bert_tokenizer = 0
-    #bert_model = 0
+    # bert_tokenizer = 0
+    # bert_model = 0
     bert_model = {'bert_tokenizer': bert_tokenizer,
                   'bert_model': bert_model}
     collect_answers(filename)
@@ -40,7 +40,10 @@ def prestart(filename):
     return raw_answers, fasttext_model, bert_model
 
 
-def start(query, vectorizer, raw_answers, fasttext_model, bert_model):
+raw_answers, fasttext_model, bert_model = prestart('data/questions_about_love.jsonl')
+
+
+def start(query, vectorizer):
     arr_answers = np.array(raw_answers)
     if vectorizer == 'count':
         proc_query = preprocess(query)
@@ -65,8 +68,15 @@ def start(query, vectorizer, raw_answers, fasttext_model, bert_model):
         return(['О нет, наши мудрецы ещё не задавались таким вопросом. '
                 'Спросите что-нибудь ещё'])
 
-raw_answers, fasttext_model, bert_model = prestart('data/questions_about_love.jsonl')
-#print(start('муж', 'bert', raw_answers, fasttext_model, bert_model))
+
+'''query = 'Мне изменил муж, что делать?'
+ways = ['count', 'tfidf', 'bm25', 'fasttext', 'bert']
+for way in ways:
+    start_time = time.time()
+    print(start(query, way))
+    end_time = time.time()
+    seconds = end_time - start_time
+    print(f'поиск за {seconds:.4f} сек')'''
 
 
 st.title('поисковик ответов про любовь')
@@ -96,7 +106,7 @@ def search_function():
 
     if button:
         start_time = time.time()
-        answers = start(query, vectorizer, raw_answers, fasttext_model, bert_model)
+        answers = start(query, vectorizer)
         end_time = time.time()
         seconds = end_time - start_time
         place_one.caption('Ваш ответ:')
