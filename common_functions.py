@@ -19,7 +19,7 @@ def preprocess(text):
 
 def collect_answers(filename):
     with open(filename, 'r', encoding='UTF-8') as f:
-        data = list(f)[:500]  # 10000
+        data = list(f)[:10000]  # 10 000
     proc_answers, raw_answers = [], []
 
     for question in data:

@@ -33,7 +33,7 @@ def search_bert(raw_query, **bert_model):
     query_vector = index_query_bert(raw_query, **bert_model)
     scores = count_sim(matrix, query_vector)
     if np.all(scores == 0):
-        return []
+        return np.array([])
     else:
         order = np.argsort(scores, axis=0)[::-1][:5]
         return order

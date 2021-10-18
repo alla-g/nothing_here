@@ -1,5 +1,6 @@
 import json
 import time
+import base64
 import numpy as np
 import streamlit as st
 
@@ -14,18 +15,16 @@ from fasttext_functions import index_corpus_fasttext, search_fasttext
 from bert_functions import index_corpus_bert, search_bert
 
 
+@st.cache(allow_output_mutation=True)
 def prestart(filename):
-    '''загрузить модели, посчитать и создать все нужные файлы'''
-    ft_model_path = '../hw4/araneum_none_fasttextcbow_300_5_2018/araneum_none_fasttextcbow_300_5_2018.model'
+    """загрузить модели, посчитать и создать все нужные файлы"""
+    ft_model_path = 'araneum_none_fasttextcbow_300_5_2018/araneum_none_fasttextcbow_300_5_2018.model'
     fasttext_model = KeyedVectors.load(ft_model_path)
-    # fasttext_model = 0
     bert_tokenizer = AutoTokenizer.from_pretrained("cointegrated/rubert-tiny")
     bert_model = AutoModel.from_pretrained("cointegrated/rubert-tiny")
-    # bert_tokenizer = 0
-    # bert_model = 0
     bert_model = {'bert_tokenizer': bert_tokenizer,
                   'bert_model': bert_model}
-    collect_answers(filename)
+    # collect_answers(filename)
     with open('data/processed_corpus.json', 'r', encoding='UTF-8') as f:
         data = json.load(f)
     raw_answers = data['raw_answers']
@@ -69,15 +68,26 @@ def start(query, vectorizer):
                 'Спросите что-нибудь ещё'])
 
 
-'''query = 'Мне изменил муж, что делать?'
-ways = ['count', 'tfidf', 'bm25', 'fasttext', 'bert']
-for way in ways:
-    start_time = time.time()
-    print(start(query, way))
-    end_time = time.time()
-    seconds = end_time - start_time
-    print(f'поиск за {seconds:.4f} сек')'''
+def get_base64(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
+
+def set_background(png_file):
+    bin_str = get_base64(png_file)
+    page_bg_img = '''
+    <style>
+    .stApp {
+      background-image: url("data:image/png;base64,%s");
+      background-size: cover;
+    }
+    </style>
+    ''' % bin_str
+    st.markdown(page_bg_img, unsafe_allow_html=True)
+
+
+set_background('data/background.png')
 
 st.title('поисковик ответов про любовь')
 st.header('Что вы хотите узнать?')
@@ -106,11 +116,12 @@ def search_function():
 
     if button:
         start_time = time.time()
-        answers = start(query, vectorizer)
+        with st.spinner('Ищем...'):
+            answers = start(query, vectorizer)
+        place_one.caption('Наш ответ:')
+        place_two.write('  \n'.join(answers))
         end_time = time.time()
         seconds = end_time - start_time
-        place_one.caption('Ваш ответ:')
-        place_two.write('  \n'.join(answers))
         place_three.caption(f'Поиск сработал за {seconds:.4f} сек')
         new_button = place_four.button('Спросить ещё!')
 

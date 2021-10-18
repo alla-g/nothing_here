@@ -33,7 +33,7 @@ def search_fasttext(proc_query, fasttext_model):
     query_vector = index_query_fasttext(proc_query, fasttext_model)
     scores = count_sim(matrix, query_vector)
     if np.all(scores == 0):
-        return []
+        return np.array([])
     else:
         order = np.argsort(scores, axis=0)[::-1][:5]
         return order

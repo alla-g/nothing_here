@@ -26,7 +26,7 @@ def search_tfidf(proc_query):
     query_vector = index_query_tfidf(proc_query)
     scores = count_sim_sparse(matrix, query_vector)
     if np.all(scores == 0):
-        return []
+        return np.array([])
     else:
         order = np.argsort(scores, axis=0)[::-1][:5]
         return order
